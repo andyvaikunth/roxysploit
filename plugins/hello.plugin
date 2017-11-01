@@ -1,0 +1,12 @@
+#!/usr/bin/python
+
+__plugin__      = "hello.plugin"
+
+print """\033[1;92m
+How to add a plugin????
+
+pretty simple go into the folder called plugins and put it in there it will load it
+but you will need to have the extenstion .plugin
+and have description and plugin name.
+Hack the planet!
+\033[1;m"""

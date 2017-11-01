@@ -1,0 +1,147 @@
+#!/usr/bin/python
+
+import sys, os, time
+import logging
+
+intname = "rsf "
+det = sys.argv[0]
+fin = det.split('.')[-2]
+__plugin__      = "%s.plugin" % (fin)
+RescoursesDir = os.getcwd()
+dandtime = time.strftime("%H:%M:%S")
+logfile = "%s/storage/logs/%s.log" % (RescoursesDir,dandtime)
+
+class Tee(object):
+  def __init__(self):
+    self.file = open(logfile, 'a')
+    self.stdout = sys.stdout
+
+  def __del__(self):
+    sys.stdout = self.stdout
+    self.file.close()
+
+  def write(self, data):
+    self.file.write(data)
+    self.stdout.write(data)
+
+sys.stdout = Tee()
+def dash():
+    while True:
+        line_1 = "" + intname + " (\033[1;31m" + fin + "\033[1;m) > "
+        terminal = raw_input(line_1).lower()
+        time.sleep(0.5)
+        if terminal == 'help':
+            print "\n"
+            print "Core Commands"
+            print "============="
+            print ""
+            print "  Command         Description"
+            print "  -------         -----------"
+            print "  help            show help menu"
+            print "  execute         run the plugin"
+            print "  exit            exit the current plugin"
+            print ""
+        elif terminal == 'execute':
+            main()
+        elif terminal == 'exit':
+            exit()
+        else:
+            print "Unknown syntax: %s" % (terminal)
+
+def main():
+    yen = "yes"
+    us = "192.168.238.41"
+
+    print "\033[1;94m[?]\033[1;m Ip :: Targets ip address to scan for samba exploit"
+    ip = raw_input('\033[1;92m[+]\033[1;m ip: [' + us + ']: ') or us
+    xmlfile = """<?xml version='1.0' encoding='utf-8'?>
+    <config xmlns='urn:trch' name='Smbtouch' version='1.1.1' schemaversion='2.1.0' configversion='1.1.1.0' id='985f383e6edd6d9397aa5da9601c8bc867f6b713'>
+      <inputparameters>
+        <parameter type='S16' name='NetworkTimeout' description='Timeout for blocking network calls (in seconds).  Use -1 for no timeout.'>
+          <value>60</value>
+        </parameter>
+        <parameter type='IPv4' name='TargetIp' description='Target IP Address'>
+          <value>""" + ip + """</value>
+        </parameter>
+        <parameter type='TcpPort' name='TargetPort' description='Port used by the SMB service'>
+          <value>445</value>
+        </parameter>
+        <parameter hidden='true' required='false' type='IPv4' name='RedirectedTargetIp' description='Physical (redirected) target IP'/>
+
+        <parameter hidden='true' required='false' type='TcpPort' name='RedirectedTargetPort' description='Physical (redirected) target port'/>
+        <paramchoice name='Protocol' description='SMB (default port 445) or NBT (default port 139)'>
+          <value>SMB</value>
+          <paramgroup name='SMB' description=''>
+            <parameter hidden='true' type='Boolean' name='UsingNbt' description='Boolean stating to use Nbt or not'>
+              <value>0</value>
+            </parameter>
+          </paramgroup>
+          <paramgroup name='NBT' description=''>
+            <parameter hidden='true' type='Boolean' name='UsingNbt' description='Boolean stating to use Nbt or not'>
+              <value>1</value>
+            </parameter>
+          </paramgroup>
+        </paramchoice>
+        <parameter type='String' name='Pipe' description='Test an additional pipe to see if it is accessible (optional)'>
+          <default/>
+        </parameter>
+        <parameter type='Buffer' name='Share' description='Test a file share to see if it is accessible (optional), entered as hex bytes (in unicode)'>
+          <default/>
+        </parameter>
+        <paramchoice name='Credentials' description='Type of credentials to use'>
+          <value>Anonymous</value>
+          <paramgroup name='Anonymous' description='Anonymous (NULL session)'/>
+          <paramgroup name='Guest' description='Guest account'/>
+          <paramgroup name='Blank' description='User account with no password set'>
+            <parameter type='Buffer' name='Username' description='Username entered as hex bytes (in unicode)'/>
+          </paramgroup>
+          <paramgroup name='Password' description='User name and password'>
+            <parameter type='Buffer' name='Username' description='Username entered as hex bytes (in unicode)'/>
+            <parameter type='Buffer' name='Password' description='Password entered as hex bytes (in unicode)'/>
+          </paramgroup>
+          <paramgroup name='NTLM' description='User name and NTLM hash'>
+            <parameter type='Buffer' name='Username' description='Username entered as hex bytes (in unicode)'/>
+            <parameter type='Buffer' name='NtlmHash' description='NTLM password hash (in hex)'/>
+          </paramgroup>
+        </paramchoice>
+      </inputparameters>
+      <constants>
+        <parameter type='U8' name='Anonymous' description=''>
+          <value>0</value>
+        </parameter>
+        <parameter type='U8' name='Guest' description=''>
+          <value>1</value>
+        </parameter>
+        <parameter type='U8' name='Blank' description=''>
+          <value>2</value>
+        </parameter>
+        <parameter type='U8' name='Password' description=''>
+          <value>3</value>
+        </parameter>
+        <parameter type='U8' name='NTLM' description=''>
+          <value>4</value>
+        </parameter>
+      </constants>
+
+    </config>"""
+    print "\033[1;94m[?]\033[1;m Configuring Plugin"
+    time.sleep(1)
+    print ""
+    print "Name             Set Value"
+    print "----             ----------"
+    print "Target           %s" % (ip)
+    print "Plugin           %s" % (fin)
+    print "\n"
+    et = raw_input("\033[1;94m[?]\033[1;m Execute Plugins? [" + yen + "]: ")  or yen
+    if et == 'yes':
+      x = open("plugins/SmbTouch/Smbtouch-1.1.1.xml", "w")
+      x.write(xmlfile)
+      x.close()
+      os.system('cd plugins/SmbTouch/; wine cmd.exe /c Smbtouch-1.1.1.exe')
+    elif et == 'no':
+        print "Goodbye ;("
+        sys.exit()
+    else:
+        print "\033[1;92m[!] No options were chosen.\033[1;m"
+
+dash()

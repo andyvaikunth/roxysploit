@@ -1,0 +1,9 @@
+#!/usr/bin/python
+
+import os
+import sys
+
+def load():
+	os.system('cd plugins/DP; python Doublepulsar.py')
+
+load()

@@ -1,0 +1,90 @@
+#!/usr/bin/python
+
+import sys, os, time
+import logging
+
+intname = "rsf"
+det = sys.argv[0]
+fin = det.split('.')[-2]
+__plugin__      = "%s.plugin" % (fin)
+RescoursesDir = os.getcwd()
+dandtime = time.strftime("%H:%M:%S")
+logfile = "%s/storage/logs/%s.log" % (RescoursesDir,dandtime)
+
+class Tee(object):
+  def __init__(self):
+    self.file = open(logfile, 'a')
+    self.stdout = sys.stdout
+
+  def __del__(self):
+    sys.stdout = self.stdout
+    self.file.close()
+
+  def write(self, data):
+    self.file.write(data)
+    self.stdout.write(data)
+
+sys.stdout = Tee()
+def dash():
+    while True:
+        line_1 = "" + intname + " (\033[1;31m" + fin + "\033[1;m) > "
+        terminal = raw_input(line_1).lower()
+        time.sleep(0.5)
+        if terminal == 'help':
+            print "\n"
+            print "Core Commands"
+            print "============="
+            print ""
+            print "  Command         Description"
+            print "  -------         -----------"
+            print "  help            show help menu"
+            print "  execute         run the plugin"
+            print "  exit            exit the current plugin"
+            print ""
+        elif terminal == 'execute':
+            main()
+        elif terminal == 'exit':
+            exit()
+        else:
+            print "Unknown syntax: %s" % (terminal)
+
+def main():
+    yen = "yes"
+    us = "915000000"
+    bd = "2000"
+    leng = "8"
+    rep = "5"
+
+    print "\033[1;94m[?]\033[1;m Frequency :: Specify the target frequency to transmit on."
+    freq = raw_input('\033[1;92m[+]\033[1;m freq: [' + us + ']: ') or us
+
+    print "\033[1;94m[?]\033[1;m Baudrate :: Specify the baudrate of the signal."
+    Baudrate = raw_input('\033[1;92m[+]\033[1;m Baudrate: [' + bd + ']: ') or bd
+
+    print "\033[1;94m[?]\033[1;m Binlength :: Specify the binary length of the signal to brute force."
+    Binlength = raw_input('\033[1;92m[+]\033[1;m Binlength: [' + leng + ']: ') or leng
+
+    print "\033[1;94m[?]\033[1;m Repeat-times :: Specify the number of times to repeat the signal."
+    Repeattimes = raw_input('\033[1;92m[+]\033[1;m Repeat-times: [' + rep + ']: ') or rep
+
+    print "\033[1;94m[?]\033[1;m Configuring Plugin"
+    time.sleep(1)
+    print ""
+    print "Name             Set Value"
+    print "----             ----------"
+    print "Frequency        %s" % (freq)
+    print "Baudrate         %s" % (Baudrate)
+    print "Binlength        %s" % (Binlength)
+    print "Repeat-times     %s" % (Repeattimes)
+    print "Plugin           %s" % (fin)
+    print "\n"
+    et = raw_input("\033[1;94m[?]\033[1;m Execute Plugins? [" + yen + "]: ")  or yen
+    if et == 'yes':
+      os.system('python plugins/rfpwnon.py -f ' + freq + ' -b ' + Baudrate + ' -l ' + Binlength + ' -r ' + Repeattimes + '')
+    elif et == 'no':
+        print "Goodbye ;("
+        sys.exit()
+    else:
+        print "\033[1;92m[!] No options were chosen.\033[1;m"
+
+dash()

@@ -1,0 +1,108 @@
+#!/usr/bin/python
+
+__plugin__      = "picklock.plugin"
+
+import os, sys, time
+import logging
+
+intname = "rsf "
+det = sys.argv[0]
+fin = det.split('.')[-2]
+__plugin__      = "%s.plugin" % (fin)
+RescoursesDir = os.getcwd()
+dandtime = time.strftime("%H:%M:%S")
+logfile = "%s/storage/logs/%s.log" % (RescoursesDir,dandtime)
+
+class Tee(object):
+  def __init__(self):
+    self.file = open(logfile, 'a')
+    self.stdout = sys.stdout
+
+  def __del__(self):
+    sys.stdout = self.stdout
+    self.file.close()
+
+  def write(self, data):
+    self.file.write(data)
+    self.stdout.write(data)
+
+sys.stdout = Tee()
+def dash():
+    while True:
+        line_1 = "" + intname + "(\033[1;31m" + fin + "\033[1;m) > "
+        terminal = raw_input(line_1).lower()
+        time.sleep(0.5)
+        if terminal == 'help':
+            print "\n"
+            print "Core Commands"
+            print "============="
+            print ""
+            print "  Command         Description"
+            print "  -------         -----------"
+            print "  help            show help menu"
+            print "  execute         run the plugin"
+            print "  exit            exit the current plugin"
+            print ""
+        elif terminal == 'execute':
+            main()
+        elif terminal == 'exit':
+            exit()
+        else:
+            print "Unknown syntax: %s" % (terminal)
+
+yx = "0"
+default = "yes"
+word = "wordlist.txt"
+driv = "/dev/sda1"
+
+def main():
+    #/* Default configs if no answer */
+    print "\033[1;94m[?]\033[1;m OS :: Select the devices os"
+    print ""
+    print "*0) Android :: Bruteforce 4digit pincode usb debugging"
+    print " 1) Linux   :: Bruteforce Encrypted partions"
+    print ""
+    function = raw_input('\033[1;92m[+]\033[1;m device: [' + yx + ']: ') or yx
+    if function == '0':
+	print "\033[1;94m[?]\033[1;m Configuring Plugin"
+    	time.sleep(1)
+    	print ""
+    	print "Name             Set Value"
+    	print "----             ----------"
+        print "Device           Android"
+        print "Plugin           %s" % (fin)
+    	print "\n"
+    	et = raw_input("\033[1;94m[?]\033[1;m Execute Plugins? [" + default + "]: ") or default
+    	if et == 'yes':
+        	os.system("bash plugins/Picklock/android.sh")
+    	elif et == 'no':
+        	print "Goodbye ;("
+        	sys.exit()
+    	else:
+                print "\033[1;92m[!] No options were chosen.\033[1;m"
+    elif function == '1':
+	print "\033[1;94m[?]\033[1;m Wordlist :: Enter the directory of your wordlist"
+	wordlist = raw_input('\033[1;92m[+]\033[1;m wordlist: [' + word + ']: ') or word
+	print "\033[1;94m[?]\033[1;m Partion :: Select the partion disk you want to bruteforce"
+	drive = raw_input('\033[1;92m[+]\033[1;m partion: [' + driv + ']: ') or driv
+	print "\033[1;94m[?]\033[1;m Configuring Plugin"
+    	time.sleep(1)
+    	print ""
+    	print "Name             Set Value"
+        print "----             ----------"
+	print "Wordlist         %s" % (wordlist)
+        print "Disk             %s" % (drive)
+        print "Plugin           %s" % (fin)
+    	print "\n"
+    	et = raw_input("\033[1;94m[?]\033[1;m Execute Plugins? [" + default + "]: ") or default
+    	if et == 'yes':
+        	os.system("bash plugins/Picklock/linux.sh %s %s" % (wordlist,drive))
+    	elif et == 'no':
+        	print "Goodbye ;("
+        	sys.exit()
+    	else:
+        	print "\033[1;92m[!] No options were chosen.\033[1;m"
+    else:
+        print "choose an option!"
+
+dash()

@@ -1,0 +1,45 @@
+#!/bin/bash
+
+echo "Thanks for downloading this is the pro version that was released on github.com/Eitenne :)"
+echo "So im going to load all files now for you please wait..."
+mv rsfpro /usr/bin/rsfc
+chmod +x /usr/bin/rsfc
+
+mv rsfupdate /usr/bin/rsfupdate
+chmod +x /usr/bin/rsfupdate
+
+mkdir /opt/roxysploit
+mv * /opt/roxysploit/
+chmod +x /opt/roxysploit
+
+echo "installing all packages..."
+pip install logging
+pip install impacket
+pip install pysmb
+pip install threading
+pip install socket
+pip install socks
+pip install zipfile
+pip install shutil
+pip install io
+pip install struct
+pip install re
+pip install optparse
+pip install binascii
+pip install base64
+pip install urllib2
+pip install urllib
+pip install requests
+pip install commands
+pip install paramiko
+pip install scapy
+pip install whois
+pip install rlcompleter
+pip install readline
+pip install terminaltables
+pip install platform
+dpkg --add-architecture i386
+apt-get install wine32
+apt-get -y install android-tools-adb android-tools-fastboot
+
+echo "Ok were done :) run 'rsfc'"
