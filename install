@@ -11,6 +11,7 @@ chmod +x /usr/bin/rsfupdate
 mkdir /opt/roxysploit
 mv * /opt/roxysploit/
 chmod +x /opt/roxysploit
+mkdir /opt/roxysploit/storage/logs
 
 echo "installing all packages..."
 pip install logging
