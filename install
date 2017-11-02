@@ -2,7 +2,7 @@
 
 echo "Thanks for downloading this is the pro version that was released on github.com/Eitenne :)"
 echo "So im going to load all files now for you please wait..."
-mv rsfpro /usr/bin/rsfc
+mv rsfc /usr/bin/rsfc
 chmod +x /usr/bin/rsfc
 
 mv rsfupdate /usr/bin/rsfupdate
