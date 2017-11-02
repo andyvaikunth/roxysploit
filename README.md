@@ -1,4 +1,6 @@
 
+## It is frequently updated
+
 |Tested on|.
 |---|---
 |Arch Linux|Working
